@@ -44,4 +44,13 @@ export class UserController {
     return res.status(400).json({err: 'Incorrect password'});
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Put('/edit')
+  async editUser(@Res() res, @Body() createUserDTO: CreateUserDTO) {
+    if(createUserDTO.password) createUserDTO.password = bcrypt.hashSync(createUserDTO.password, 10);
+
+    const updatedUser =  await this.userService.editUser(createUserDTO);
+    return res.status(HttpStatus.OK).json(updatedUser);
+  }
+
 }

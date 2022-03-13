@@ -48,6 +48,15 @@ export class UserService {
     return message;
   }
 
+  async setStatus(createUserDTO: CreateUserDTO): Promise<User>{
+    const filter = { name: createUserDTO.username };
+
+    let updatedUser = await this.userModel.findOneAndUpdate(filter, { online: createUserDTO.online }, {
+      new: true
+    });
+    return updatedUser;
+  }
+
   async generateAuthToken(username: string) {
     const payload = { username };
     return {

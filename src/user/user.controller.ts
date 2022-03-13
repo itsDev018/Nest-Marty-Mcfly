@@ -82,4 +82,14 @@ export class UserController {
     return res.status(HttpStatus.OK).json({ message });
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Put('/set-status')
+  async setStatus(@Res() res, @Body() createUserDTO: CreateUserDTO) {
+    const updatedUser =  await this.userService.setStatus(createUserDTO);
+
+    updatedUser.password = '';
+
+    return res.status(HttpStatus.OK).json(updatedUser);
+  }
+
 }

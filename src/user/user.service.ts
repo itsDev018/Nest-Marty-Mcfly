@@ -57,10 +57,10 @@ export class UserService {
 
   }
 
-  async setStatus(createUserDTO: CreateUserDTO): Promise<User>{
-    const filter = { name: createUserDTO.username };
+  async setStatus(username: string, online: boolean): Promise<User>{
+    const filter = { name: username };
 
-    let updatedUser = await this.userModel.findOneAndUpdate(filter, { online: createUserDTO.online }, {
+    let updatedUser = await this.userModel.findOneAndUpdate(filter, { online }, {
       new: true
     });
     return updatedUser;

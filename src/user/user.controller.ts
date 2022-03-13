@@ -68,9 +68,11 @@ export class UserController {
   async getActiveUsers(@Res() res) {
     const users = await this.userService.getActiveUsers();
 
-    //Hidde users passwords
+    //Hidde users personal data
     users.forEach( function(value, index, array) {
       value.password = '';
+      value.messages = [];
+      value.notifications = []
     });
 
     return res.status(HttpStatus.OK).json(users);
@@ -100,8 +102,9 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Put('/set-status')
-  async setStatus(@Res() res, @Body() createUserDTO: CreateUserDTO) {
-    const updatedUser =  await this.userService.setStatus(createUserDTO);
+  async setStatus(@Res() res, @Headers() headers, @Body() createUserDTO: CreateUserDTO) {
+    const accessTokenUsername = this.userService.getAccessToken(headers.authorization);
+    const updatedUser =  await this.userService.setStatus(accessTokenUsername, createUserDTO.online);
 
     updatedUser.password = '';
 

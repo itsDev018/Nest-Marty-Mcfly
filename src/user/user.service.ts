@@ -40,12 +40,20 @@ export class UserService {
     return users;
   }
 
-  async createMessage(createMessageDTO: CreateMessageDTO) {
-    let message = { text: createMessageDTO.text, to: createMessageDTO.to, from: createMessageDTO.from };
+  async createMessage(createMessageDTO: CreateMessageDTO) {//Si no esta activo no enviar
+    const to = createMessageDTO.to;
+    const user = await this.getUserData(createMessageDTO.to);
 
-    const userWithMessage = await this.userModel.findOneAndUpdate({username: createMessageDTO.to},
-                                  {$push: {messages: message}}, { new: true });
-    return message;
+    if(user.online){
+      let message = { text: createMessageDTO.text, to: createMessageDTO.to, from: createMessageDTO.from };
+
+      const userWithMessage = await this.userModel.findOneAndUpdate({username: createMessageDTO.to},
+                                    {$push: {messages: message}}, { new: true });
+      return message;
+    }
+
+    return 'The user is offline'
+
   }
 
   async checkMessages(username: string): Promise<User> {

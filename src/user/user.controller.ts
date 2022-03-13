@@ -88,7 +88,6 @@ export class UserController {
     const userData = await this.userService.checkMessages(username);
     const messages = userData.messages;
 
-
     return res.status(HttpStatus.OK).json(messages);
   }
 

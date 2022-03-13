@@ -10,6 +10,10 @@ export const UserSchema = new Schema({
     text: { type: String },
     to: { type: String },
     from: { type: String }
+  }],
+  notifications : [{
+    to: { type: String },
+    from: { type: String }
   }]
 });
 

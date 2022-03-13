@@ -30,6 +30,12 @@ export class UserService {
     return updatedUser;
   }
 
+  async getUserData(username: string): Promise<User> {
+    const user = await this.userModel.findOne({ username });
+    //const user = await this.userModel.findById(userId);
+    return user;
+  }
+
   async generateAuthToken(username: string) {
     const payload = { username };
     return {

@@ -24,23 +24,3 @@ UserSchema.pre('save', function(next) {
         });
     });
 });
-
-/*UserSchema.pre('findOneAndUpdate', async function() {
-  const user = await this.model.findOne(this.getUpdate());
-  console.log(user); // The document that `findOneAndUpdate()` will modify
-
-  //if (!user.isModified('password')) return next();
-
-  bcrypt.genSalt(10, function(err, salt) {
-      //if (err) return next(err);
-
-      bcrypt.hash(user.password, salt, function(err, hash) {
-        console.log('Dentro');
-
-          //if (err) return next(err);
-          user.password = hash;
-          console.log(user.password);
-
-      });
-  });
-});*/

@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Put, Res, HttpStatus, Body,
-         UseGuards, NotFoundException } from '@nestjs/common';
+         UseGuards, NotFoundException, Param } from '@nestjs/common';
 import { CreateUserDTO } from './dto/user.dto';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -28,8 +28,6 @@ export class UserController {
 
   @Post('/login')
   async loginUser(@Res() res, @Body() createUserDTO: CreateUserDTO){
-    console.log(process.env.TOKEN_SECRET);
-
     const user = await this.userService.loginUser(createUserDTO);
 
     if (!user) throw new NotFoundException('User does not exist!');
@@ -51,6 +49,16 @@ export class UserController {
 
     const updatedUser =  await this.userService.editUser(createUserDTO);
     return res.status(HttpStatus.OK).json(updatedUser);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/:username')
+  async getUserData(@Res() res, @Param('username') username) {
+    const user = await this.userService.getUserData(username);
+
+    if (!user) throw new NotFoundException('User does not exist!');
+
+    return res.status(HttpStatus.OK).json(user);
   }
 
 }

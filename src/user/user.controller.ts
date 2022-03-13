@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Put, Res, HttpStatus, Body,
-         UseGuards, NotFoundException, Param } from '@nestjs/common';
+         UseGuards, NotFoundException, Param, Headers } from '@nestjs/common';
 import { CreateUserDTO, CreateMessageDTO } from './dto/user.dto';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -36,25 +36,27 @@ export class UserController {
 
       const accessToken = await this.userService.generateAuthToken(user.username)
 
-      //In real-life enviroment like Kubide, I'll store the JWT on a cookie or session :)
-      return res.status(HttpStatus.OK).json(accessToken);
+      //In real-life enviroment like Kubide, I would prefer to store the JWT on a cookie or session :)
+      return res.status(HttpStatus.OK).json({paste_on_next_requests: accessToken.access_token});
     }
     return res.status(400).json({err: 'Incorrect password'});
   }
 
   @UseGuards(JwtAuthGuard)
   @Put('/edit')
-  async editUser(@Res() res, @Body() createUserDTO: CreateUserDTO) {
+  async editUser(@Res() res, @Headers() headers, @Body() createUserDTO: CreateUserDTO) {
+    const accessTokenUsername = this.userService.getAccessToken(headers.authorization);
     if(createUserDTO.password) createUserDTO.password = bcrypt.hashSync(createUserDTO.password, 10);
 
-    const updatedUser =  await this.userService.editUser(createUserDTO);
+    const updatedUser =  await this.userService.editUser(accessTokenUsername, createUserDTO);
     return res.status(HttpStatus.OK).json(updatedUser);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('info/:username')
-  async getUserData(@Res() res, @Param('username') username) {
-    const user = await this.userService.getUserData(username);
+  @Get('info')
+  async getUserData(@Res() res, @Headers() headers) {
+    const accessTokenUsername = this.userService.getAccessToken(headers.authorization);
+    const user = await this.userService.getUserData(accessTokenUsername);
 
     if (!user) throw new NotFoundException('User does not exist!');
 
@@ -76,16 +78,21 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/create-message')
-  async createMessage(@Res() res, @Body() createMessageDTO: CreateMessageDTO) {
-    const message = await this.userService.createMessage(createMessageDTO);
+  async createMessage(@Res() res, @Headers() headers, @Body() createMessageDTO: CreateMessageDTO) {
+    const accessTokenUsername = this.userService.getAccessToken(headers.authorization);
+
+    const message = await this.userService.createMessage(createMessageDTO.text,
+                                      createMessageDTO.to, accessTokenUsername);
 
     return res.status(HttpStatus.OK).json({ message });
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('check-messages/:username')
-  async checkMessages(@Res() res, @Param('username') username) {
-    const userData = await this.userService.getUserData(username);
+  @Get('/check-messages')
+  async checkMessages(@Res() res, @Headers() headers) {
+    const accessTokenUsername = this.userService.getAccessToken(headers.authorization);
+
+    const userData = await this.userService.getUserData(accessTokenUsername);
     const messages = userData.messages;
 
     return res.status(HttpStatus.OK).json(messages);
@@ -102,9 +109,11 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('check-notifications/:username')
-  async checkNotifications(@Res() res, @Param('username') username) {
-    const userData = await this.userService.getUserData(username);
+  @Get('check-notifications')
+  async checkNotifications(@Res() res, @Headers() headers) {
+    const accessTokenUsername = this.userService.getAccessToken(headers.authorization);
+
+    const userData = await this.userService.getUserData(accessTokenUsername);
     const notifications = userData.notifications;
 
     return res.status(HttpStatus.OK).json(notifications);

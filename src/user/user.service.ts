@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Headers } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { JwtService } from '@nestjs/jwt';
@@ -21,8 +21,9 @@ export class UserService {
     return user;
   }
 
-  async editUser(createUserDTO: CreateUserDTO): Promise<User>{
-    const filter = { name: createUserDTO.username };
+  //Only the username took from auth token can be updated
+  async editUser(userLogged: string, createUserDTO: CreateUserDTO): Promise<User>{
+    const filter = { name: userLogged };
 
     let updatedUser = await this.userModel.findOneAndUpdate(filter, createUserDTO, {
       new: true
@@ -40,14 +41,14 @@ export class UserService {
     return users;
   }
 
-  async createMessage(createMessageDTO: CreateMessageDTO) {
-    const user = await this.getUserData(createMessageDTO.to);
-    this.generateNotification(createMessageDTO);
+  async createMessage(text: string, to: string, from: string) {
+    const user = await this.getUserData(to);
+    this.generateNotification(to, from);
 
     if(user.online){
-      let message = { text: createMessageDTO.text, to: createMessageDTO.to, from: createMessageDTO.from };
+      let message = { text, to, from };
 
-      const userWithMessage = await this.userModel.findOneAndUpdate({username: createMessageDTO.to},
+      const userWithMessage = await this.userModel.findOneAndUpdate({username: to},
                                     {$push: {messages: message}}, { new: true });
       return message;
     }
@@ -72,9 +73,14 @@ export class UserService {
     };
   }
 
-  async generateNotification(createMessageDTO: CreateMessageDTO) {
-    let notification = { to: createMessageDTO.to, from: createMessageDTO.from }
-    const userWithMessage = await this.userModel.findOneAndUpdate({username: createMessageDTO.to},
+  getAccessToken(@Headers() headers) {
+    const jwtData = this.jwtService.verify(headers.split(" ").pop())
+    return jwtData.username;
+  }
+
+  async generateNotification(to, from) {
+    let notification = { to, from }
+    const userWithMessage = await this.userModel.findOneAndUpdate({username: to},
                                   {$push: {notifications: notification}}, { new: true });
   }
 }

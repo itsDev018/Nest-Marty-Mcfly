@@ -5,7 +5,12 @@ export const UserSchema = new Schema({
   username: {required: true, type:String,
              trim: true, index: { unique: true }},
   password: {type: String, required: true},
-  online: {type: Boolean, default: false}
+  online: {type: Boolean, default: false},
+  messages : [{
+    text: { type: String },
+    to: { type: String },
+    from: { type: String }
+  }]
 });
 
 //Encrypt password

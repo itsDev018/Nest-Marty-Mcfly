@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { JwtService } from '@nestjs/jwt';
 
 import { User } from './interfaces/user.interface';
-import { CreateUserDTO } from './dto/user.dto';
+import { CreateUserDTO, CreateMessageDTO } from './dto/user.dto';
 
 @Injectable()
 export class UserService {
@@ -38,6 +38,14 @@ export class UserService {
   async getActiveUsers(): Promise<User[]> {
     const users = await this.userModel.find({ online: true });
     return users;
+  }
+
+  async createMessage(createMessageDTO: CreateMessageDTO) {
+    let message = { text: createMessageDTO.text, to: createMessageDTO.to, from: createMessageDTO.from };
+
+    const userWithMessage = await this.userModel.findOneAndUpdate({username: createMessageDTO.to},
+                                  {$push: {messages: message}}, { new: true });
+    return message;
   }
 
   async generateAuthToken(username: string) {

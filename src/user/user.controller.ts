@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Put, Res, HttpStatus, Body,
          UseGuards, NotFoundException, Param } from '@nestjs/common';
-import { CreateUserDTO } from './dto/user.dto';
+import { CreateUserDTO, CreateMessageDTO } from './dto/user.dto';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import * as bcrypt from 'bcrypt';
@@ -72,6 +72,14 @@ export class UserController {
     });
 
     return res.status(HttpStatus.OK).json(users);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/create-message')
+  async createMessage(@Res() res, @Body() createMessageDTO: CreateMessageDTO) {
+    const message = await this.userService.createMessage(createMessageDTO);
+
+    return res.status(HttpStatus.OK).json({ message });
   }
 
 }

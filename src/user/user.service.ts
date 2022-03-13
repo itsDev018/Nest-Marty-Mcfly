@@ -48,6 +48,11 @@ export class UserService {
     return message;
   }
 
+  async checkMessages(username: string): Promise<User> {
+    const userData = await this.userModel.findOne({ username });
+    return userData;
+  }
+
   async setStatus(createUserDTO: CreateUserDTO): Promise<User>{
     const filter = { name: createUserDTO.username };
 

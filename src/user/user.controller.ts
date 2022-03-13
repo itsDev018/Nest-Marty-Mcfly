@@ -83,6 +83,16 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('check-messages/:username')
+  async checkMessages(@Res() res, @Param('username') username) {
+    const userData = await this.userService.checkMessages(username);
+    const messages = userData.messages;
+
+
+    return res.status(HttpStatus.OK).json(messages);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Put('/set-status')
   async setStatus(@Res() res, @Body() createUserDTO: CreateUserDTO) {
     const updatedUser =  await this.userService.setStatus(createUserDTO);

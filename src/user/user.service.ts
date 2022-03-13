@@ -32,8 +32,12 @@ export class UserService {
 
   async getUserData(username: string): Promise<User> {
     const user = await this.userModel.findOne({ username });
-    //const user = await this.userModel.findById(userId);
     return user;
+  }
+
+  async getActiveUsers(): Promise<User[]> {
+    const users = await this.userModel.find({ online: true });
+    return users;
   }
 
   async generateAuthToken(username: string) {

@@ -52,13 +52,26 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('/:username')
+  @Get('info/:username')
   async getUserData(@Res() res, @Param('username') username) {
     const user = await this.userService.getUserData(username);
 
     if (!user) throw new NotFoundException('User does not exist!');
 
     return res.status(HttpStatus.OK).json(user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/active-users')
+  async getActiveUsers(@Res() res) {
+    const users = await this.userService.getActiveUsers();
+
+    //Hidde users passwords
+    users.forEach( function(value, index, array) {
+      value.password = '';
+    });
+
+    return res.status(HttpStatus.OK).json(users);
   }
 
 }

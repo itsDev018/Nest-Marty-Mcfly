@@ -85,7 +85,7 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Get('check-messages/:username')
   async checkMessages(@Res() res, @Param('username') username) {
-    const userData = await this.userService.checkMessages(username);
+    const userData = await this.userService.getUserData(username);
     const messages = userData.messages;
 
     return res.status(HttpStatus.OK).json(messages);
@@ -99,6 +99,15 @@ export class UserController {
     updatedUser.password = '';
 
     return res.status(HttpStatus.OK).json(updatedUser);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('check-notifications/:username')
+  async checkNotifications(@Res() res, @Param('username') username) {
+    const userData = await this.userService.getUserData(username);
+    const notifications = userData.notifications;
+
+    return res.status(HttpStatus.OK).json(notifications);
   }
 
 }

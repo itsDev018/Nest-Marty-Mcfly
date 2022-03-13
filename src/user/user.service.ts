@@ -40,9 +40,9 @@ export class UserService {
     return users;
   }
 
-  async createMessage(createMessageDTO: CreateMessageDTO) {//Si no esta activo no enviar
-    const to = createMessageDTO.to;
+  async createMessage(createMessageDTO: CreateMessageDTO) {
     const user = await this.getUserData(createMessageDTO.to);
+    this.generateNotification(createMessageDTO);
 
     if(user.online){
       let message = { text: createMessageDTO.text, to: createMessageDTO.to, from: createMessageDTO.from };
@@ -54,11 +54,6 @@ export class UserService {
 
     return 'The user is offline'
 
-  }
-
-  async checkMessages(username: string): Promise<User> {
-    const userData = await this.userModel.findOne({ username });
-    return userData;
   }
 
   async setStatus(createUserDTO: CreateUserDTO): Promise<User>{
@@ -75,5 +70,11 @@ export class UserService {
     return {
       access_token: this.jwtService.sign(payload),
     };
+  }
+
+  async generateNotification(createMessageDTO: CreateMessageDTO) {
+    let notification = { to: createMessageDTO.to, from: createMessageDTO.from }
+    const userWithMessage = await this.userModel.findOneAndUpdate({username: createMessageDTO.to},
+                                  {$push: {notifications: notification}}, { new: true });
   }
 }

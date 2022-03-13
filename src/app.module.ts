@@ -3,9 +3,12 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [UserModule, MongooseModule.forRoot('mongodb://127.0.0.1:27017/mc-fly-db')],
+  imports: [UserModule,
+     ConfigModule.forRoot(),
+     MongooseModule.forRoot('mongodb://127.0.0.1:27017/mc-fly-db')],
   controllers: [AppController],
   providers: [AppService],
 })

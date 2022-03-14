@@ -13,6 +13,7 @@ The Marty Mcfly feel like app. My boss has asked me, to build a tool where users
 sign up and send messages to each other(now you understand about the app name...)
 
 ## Requirements
+
 - Node.js
 - NestJs
 ```bash
@@ -21,6 +22,11 @@ sign up and send messages to each other(now you understand about the app name...
 - MongoDB
 
 ## Installation
+
+-Create the .env file on the root
+
+-Store on .env the password to generate the auth token,
+like this: ***"TOKEN_SECRET=amazing-secret-password"***
 
 ```bash
 # go to the project
